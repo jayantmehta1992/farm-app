@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for farm-app-frontend on 2026-06-14T01:04:05+05:30
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'farm-app-frontend'
+primary_region = 'bom'
+
+[build]
+# VITE_API_URL is passed at build time by CI via the VITE_API_URL GitHub variable.
+# For manual deploys: fly deploy --build-arg VITE_API_URL=https://farm-app-backend.fly.dev
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024
