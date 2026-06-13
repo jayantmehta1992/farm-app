@@ -4,7 +4,7 @@
 #
 
 app = 'farm-app-backend'
-primary_region = 'bom'
+primary_region = 'sin'
 
 [build]
 
