@@ -11,6 +11,9 @@ on:
   push:
     branches: [main]       # and on direct pushes to main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # opt all actions into Node.js 24
+
 jobs:
   # --- Build checks (run on every PR and push to main) ------------------
   # These are the required status checks — a PR cannot be merged until
