@@ -22,9 +22,15 @@ docker compose up -d
 # --- 2. Backend (FastAPI) ------------------------------------------------
 echo "🐍 Starting backend on http://localhost:8000 ..."
 cd "$ROOT_DIR/backend"
-# Run uvicorn from the venv directly (no need to "activate" first).
-# The "&" sends it to the background so the script can continue.
-./venv/bin/uvicorn main:app --reload --port 8000 &
+# Validate imports before starting — fail loudly if any file has errors
+# instead of silently serving stale code.
+if ! ./venv/bin/python -c "from main import app" 2>&1; then
+  echo "❌ Backend failed to import. Fix the errors above, then re-run ./start.sh"
+  exit 1
+fi
+# --reload-dir . watches the entire backend folder including sub-packages
+# (routers/, services/) so uvicorn catches changes in all Python files.
+./venv/bin/uvicorn main:app --reload --reload-dir . --port 8000 &
 BACKEND_PID=$!   # remember its process ID so we can stop it later
 
 # --- 3. Frontend (React / Vite) ------------------------------------------
