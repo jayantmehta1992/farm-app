@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest        # a fresh Linux machine provided by GitHub
     steps:
       # 1. Check out (download) the repo onto the runner.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # 2. Build the backend Docker image. Fails the job if the build fails.
       - name: docker build (backend)
         run: docker build -t farm-backend:ci ./backend
@@ -28,6 +28,6 @@ jobs:
     name: Build frontend image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: docker build (frontend)
         run: docker build -t farm-frontend:ci ./frontend

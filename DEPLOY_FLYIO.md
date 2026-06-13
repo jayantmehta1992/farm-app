@@ -223,7 +223,7 @@ These are the exact changes you apply to the repo when setting up Fly.io deploym
      name: Build backend image
      runs-on: ubuntu-latest
      steps:
-       - uses: actions/checkout@v4
+       - uses: actions/checkout@v5
        - name: docker build (backend)
          run: docker build -t farm-backend:ci ./backend
 
@@ -231,7 +231,7 @@ These are the exact changes you apply to the repo when setting up Fly.io deploym
      name: Build frontend image
      runs-on: ubuntu-latest
      steps:
-       - uses: actions/checkout@v4
+       - uses: actions/checkout@v5
        - name: docker build (frontend)
          run: docker build -t farm-frontend:ci ./frontend
 +
@@ -241,7 +241,7 @@ These are the exact changes you apply to the repo when setting up Fly.io deploym
 +    runs-on: ubuntu-latest
 +    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 +    steps:
-+      - uses: actions/checkout@v4
++      - uses: actions/checkout@v5
 +      - uses: superfly/flyctl-actions/setup-flyctl@master
 +      - name: fly deploy (backend)
 +        run: flyctl deploy --remote-only
@@ -255,7 +255,7 @@ These are the exact changes you apply to the repo when setting up Fly.io deploym
 +    runs-on: ubuntu-latest
 +    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 +    steps:
-+      - uses: actions/checkout@v4
++      - uses: actions/checkout@v5
 +      - uses: superfly/flyctl-actions/setup-flyctl@master
 +      - name: fly deploy (frontend)
 +        run: flyctl deploy --remote-only
