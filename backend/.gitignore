@@ -1,0 +1,9 @@
+# Python virtual environment — never commit this; it's recreated from requirements.txt
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment variables (secrets like DB passwords)
+.env

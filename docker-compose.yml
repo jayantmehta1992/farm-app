@@ -1,0 +1,32 @@
+# docker-compose.yml — describes the containers our project needs.
+# Run "docker compose up -d" in this folder to start them.
+
+services:
+  # We're defining one service named "mongo".
+  mongo:
+    # Use the official MongoDB image, version 7. Docker downloads this
+    # automatically the first time. An "image" is the pre-built template
+    # a container is created from.
+    image: mongo:7
+
+    # A friendly name for the running container.
+    container_name: farm-mongo
+
+    # Port mapping "host:container". This makes MongoDB, which listens on
+    # port 27017 INSIDE the container, reachable at localhost:27017 on YOUR
+    # Mac. Without this, the database would be sealed inside the container.
+    ports:
+      - "27017:27017"
+
+    # "Volumes" save data to disk OUTSIDE the container. Without this, all
+    # your data would vanish every time the container is removed. This line
+    # stores MongoDB's data in a named volume called "farm-mongo-data".
+    volumes:
+      - farm-mongo-data:/data/db
+
+    # Restart the container automatically unless we deliberately stop it.
+    restart: unless-stopped
+
+# Declare the named volume used above.
+volumes:
+  farm-mongo-data:

@@ -1,0 +1,20 @@
+# ---- Secrets / environment files -------------------------------------
+# Never commit real .env files. Commit .env.example instead (see below).
+.env
+*.local
+
+# ---- Python (backend) -------------------------------------------------
+venv/
+__pycache__/
+*.pyc
+
+# ---- Node / React (frontend) ------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+*.log
+
+# ---- OS / editor junk -------------------------------------------------
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,58 @@
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+  text-align: left;
+}
+
+h1 {
+  margin-bottom: 0;
+}
+
+.subtitle {
+  color: #888;
+  margin-top: 4px;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.form input {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.form button {
+  padding: 8px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  background: #2e7d32;
+  color: white;
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: #256528;
+}
+
+.item-list {
+  list-style: none;
+  padding: 0;
+}
+
+.item-list li {
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
