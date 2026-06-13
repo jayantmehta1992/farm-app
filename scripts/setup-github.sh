@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 # setup-github.sh — configures a repository ruleset on GitHub so that
-# CI checks must pass before ANY pull request can be merged, regardless
-# of the source or target branch.
+# CI checks must pass before any open PR can be merged, regardless of
+# source or target branch. Direct pushes to branches are NOT blocked.
 #
-# Uses GitHub's Rulesets API (newer than classic branch protection) which
-# supports the "~ALL" pattern to match every branch in one rule.
-#
-# Run once after creating the repo, or re-run to update the rules.
 # Requires: gh CLI installed and logged in (gh auth login).
+# Requires: public repo or GitHub Pro (for rulesets).
 #
 # Usage:
 #   bash scripts/setup-github.sh
@@ -16,8 +13,14 @@ set -euo pipefail
 
 REPO="jayantmehta1992/farm-app"
 
+# Delete any existing ruleset with the same name to allow re-running safely.
+EXISTING_ID=$(gh api "repos/$REPO/rulesets" --jq '.[] | select(.name == "Require CI on all pull requests") | .id' 2>/dev/null || true)
+if [ -n "$EXISTING_ID" ]; then
+  echo "Removing existing ruleset (id: $EXISTING_ID)..."
+  gh api --method DELETE "repos/$REPO/rulesets/$EXISTING_ID"
+fi
+
 echo "Applying repository ruleset to $REPO..."
-echo "Target: ALL branches (any source → any target)"
 
 gh api \
   --method POST \
@@ -36,19 +39,9 @@ gh api \
   },
   "rules": [
     {
-      "type": "pull_request",
-      "parameters": {
-        "required_approving_review_count": 0,
-        "dismiss_stale_reviews_on_push": false,
-        "require_code_owner_review": false,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": false
-      }
-    },
-    {
       "type": "required_status_checks",
       "parameters": {
-        "strict_required_status_checks_policy": true,
+        "strict_required_status_checks_policy": false,
         "required_status_checks": [
           { "context": "Build backend image" },
           { "context": "Build frontend image" }
@@ -63,7 +56,7 @@ echo ""
 echo "Done. Ruleset is now active on ALL branches."
 echo ""
 echo "Rules applied:"
-echo "  - PR required before merging (any branch)"
-echo "  - 'Build backend image' CI check must pass"
-echo "  - 'Build frontend image' CI check must pass"
-echo "  - Branch must be up to date before merging"
+echo "  - Direct pushes to any branch: allowed"
+echo "  - PR merge button: blocked until CI passes"
+echo "    - 'Build backend image' must pass"
+echo "    - 'Build frontend image' must pass"
