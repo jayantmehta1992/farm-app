@@ -1,0 +1,59 @@
+# docker-compose.prod.yml — runs the FULL stack as production images.
+#
+# Unlike docker-compose.yml (which only runs MongoDB for local dev), this
+# builds and runs all three services together, the way they'd run deployed.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml down
+#
+# Then open http://localhost:3000
+
+# A distinct project name so this prod stack stays fully separate from the
+# dev stack in docker-compose.yml (own containers, network, and volume).
+name: farm-app-prod
+
+services:
+  # --- Database ---------------------------------------------------------
+  mongo:
+    image: mongo:7
+    container_name: farm-mongo-prod
+    restart: unless-stopped
+    volumes:
+      - farm-mongo-prod-data:/data/db
+    # Note: no "ports" here — only the backend needs to reach Mongo, and it
+    # does so over the internal Docker network. Not exposing it is safer.
+
+  # --- Backend (FastAPI) ------------------------------------------------
+  backend:
+    build: ./backend            # build the image from backend/Dockerfile
+    container_name: farm-backend-prod
+    restart: unless-stopped
+    environment:
+      # "mongo" here is the service name above — Docker's internal DNS
+      # resolves it to the Mongo container. No localhost needed.
+      MONGO_URL: mongodb://mongo:27017
+      DB_NAME: farm_app
+      # The browser-facing address of the frontend (for CORS).
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"             # expose the API on host port 8000
+
+  # --- Frontend (React via nginx) ---------------------------------------
+  frontend:
+    build:
+      context: ./frontend       # build from frontend/Dockerfile
+      args:
+        # Baked into the build: the browser calls the backend at this URL.
+        VITE_API_URL: http://localhost:8000
+    container_name: farm-frontend-prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"               # nginx serves on container :80 -> host :3000
+
+volumes:
+  farm-mongo-prod-data:

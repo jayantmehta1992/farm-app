@@ -1,6 +1,10 @@
 # docker-compose.yml — describes the containers our project needs.
 # Run "docker compose up -d" in this folder to start them.
 
+# Project name for the DEV stack, kept separate from the prod stack
+# (docker-compose.prod.yml uses name "farm-app-prod").
+name: farm-app
+
 services:
   # We're defining one service named "mongo".
   mongo:

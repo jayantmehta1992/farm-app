@@ -1,0 +1,33 @@
+# GitHub Actions CI — runs automatically on GitHub's servers.
+# Goal: prove both Docker images BUILD successfully before code is merged.
+# (Building the frontend image also runs `npm run build`, catching broken
+#  React/JS code.)
+
+name: CI
+
+# When should this run?
+on:
+  pull_request:            # on every PR (any branch -> any branch)
+  push:
+    branches: [main]       # and on direct pushes to main
+
+jobs:
+  # --- Build the backend image -----------------------------------------
+  build-backend:
+    name: Build backend image
+    runs-on: ubuntu-latest        # a fresh Linux machine provided by GitHub
+    steps:
+      # 1. Check out (download) the repo onto the runner.
+      - uses: actions/checkout@v4
+      # 2. Build the backend Docker image. Fails the job if the build fails.
+      - name: docker build (backend)
+        run: docker build -t farm-backend:ci ./backend
+
+  # --- Build the frontend image ----------------------------------------
+  build-frontend:
+    name: Build frontend image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker build (frontend)
+        run: docker build -t farm-frontend:ci ./frontend

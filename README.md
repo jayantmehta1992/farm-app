@@ -146,6 +146,56 @@ Browser (React :5173) ──fetch──> FastAPI (:8000) ──motor──> Mong
         └─────────────────── items as JSON ──────────────────────┘
 ```
 
+## Deployment
+
+The app is containerized so it can be deployed anywhere that runs Docker.
+
+### Docker images
+
+| Service  | Dockerfile           | What it does                                  |
+|----------|----------------------|-----------------------------------------------|
+| backend  | `backend/Dockerfile` | FastAPI served by uvicorn on port 8000        |
+| frontend | `frontend/Dockerfile`| React built and served by nginx on port 80    |
+
+The frontend's backend URL is baked in **at build time** via a build arg:
+
+```bash
+docker build --build-arg VITE_API_URL=https://api.yourdomain.com -t farm-frontend ./frontend
+```
+
+### Run the full production stack locally
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build   # build + start all 3
+# open http://localhost:3000
+docker compose -f docker-compose.prod.yml down            # stop
+```
+
+This is fully separate from the dev stack (different project name, containers,
+and data volume), so the two never clash.
+
+### Continuous Integration (GitHub Actions)
+
+`.github/workflows/ci.yml` runs on every Pull Request (and on pushes to
+`main`). It builds both Docker images to confirm the app compiles before you
+merge. A green check ✓ means the images build; a red ✗ means something broke.
+
+### Deploying with Dokploy / Coolify
+
+Both are self-hosted platforms that build from the Dockerfiles in this repo:
+
+1. Connect the platform to this GitHub repository.
+2. Define services pointing at `backend/` and `frontend/` (or use
+   `docker-compose.prod.yml` if the platform supports compose).
+3. Set environment variables on the platform (don't commit real secrets):
+   - backend: `MONGO_URL`, `DB_NAME`, `FRONTEND_URL`
+   - frontend build arg: `VITE_API_URL` (your backend's public URL)
+4. Provision MongoDB (the platform's database feature, or a `mongo` service).
+5. Enable the platform's **preview deployments** to get a live URL per PR.
+
+> The actual build & deploy is triggered by the platform watching the repo
+> (via webhook) — GitHub Actions only gates PRs with the build check above.
+
 ## Next ideas to learn
 
 - Add **update** (PUT) and **delete** (DELETE) endpoints for items.

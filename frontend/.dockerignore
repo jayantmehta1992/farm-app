@@ -1,0 +1,15 @@
+# Don't copy these into the Docker image.
+
+# Installed packages — the build stage runs its own clean "npm ci".
+node_modules/
+
+# Previous build output
+dist/
+
+# Local env file — production build uses the VITE_API_URL build arg instead.
+.env
+*.local
+
+# Git metadata
+.git
+.gitignore

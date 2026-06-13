@@ -1,0 +1,15 @@
+# Don't copy these into the Docker image.
+
+# The local virtual environment — the image installs its own deps.
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Secrets / local config — provided at runtime by the platform instead.
+.env
+
+# Git metadata
+.git
+.gitignore
