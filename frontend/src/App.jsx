@@ -1,91 +1,158 @@
-// App.jsx — our main React component (the UI of the page).
-
-// useState lets a component "remember" values between renders (its state).
-// useEffect lets us run code at certain times — e.g. when the page loads.
 import { useState, useEffect } from 'react';
-import './App.css';
 
-// The address of our FastAPI backend, read from the .env file.
-// Vite exposes any variable starting with VITE_ on import.meta.env.
-// The "|| ..." part is a fallback used if the variable isn't set.
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function App() {
-  // items   -> the current list of items (starts as an empty array)
-  // setItems -> the function we call to update that list
+  // --- Items state (MongoDB) ------------------------------------------------
   const [items, setItems] = useState([]);
-
-  // The text the user is typing into the form inputs.
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
-  // Ask the backend for all items and store them in state.
-  async function loadItems() {
-    const res = await fetch(`${API_URL}/items`);
-    const data = await res.json();
-    setItems(data);
-  }
+  // --- Notes state (SQLite) -------------------------------------------------
+  const [notes, setNotes] = useState([]);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
 
-  // useEffect with an empty [] dependency list runs ONCE, when the
-  // component first appears. Perfect for loading initial data.
   useEffect(() => {
     (async () => {
-      await loadItems();
+      await Promise.all([loadItems(), loadNotes()]);
     })();
   }, []);
 
-  // Runs when the form is submitted (the "Add" button).
-  async function handleSubmit(event) {
-    event.preventDefault(); // stop the browser's default page reload
-    if (!name) return; // ignore empty submissions
+  // --- Items ----------------------------------------------------------------
+  async function loadItems() {
+    const res = await fetch(`${API_URL}/items`);
+    setItems(await res.json());
+  }
 
-    // Send a POST request with the new item as JSON.
+  async function handleItemSubmit(e) {
+    e.preventDefault();
+    if (!name) return;
     await fetch(`${API_URL}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, description }),
     });
-
-    // Clear the inputs and refresh the list so the new item shows up.
     setName('');
     setDescription('');
     loadItems();
   }
 
-  // The "return" describes what to draw on screen. This JSX looks like
-  // HTML but it's JavaScript — note className instead of class, and {}
-  // to drop in JavaScript values.
+  // --- Notes ----------------------------------------------------------------
+  async function loadNotes() {
+    const res = await fetch(`${API_URL}/notes`);
+    setNotes(await res.json());
+  }
+
+  async function handleNoteSubmit(e) {
+    e.preventDefault();
+    if (!title) return;
+    await fetch(`${API_URL}/notes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content }),
+    });
+    setTitle('');
+    setContent('');
+    loadNotes();
+  }
+
   return (
-    <div className="container">
-      <h1>🚜 FARM App</h1>
-      <p className="subtitle">FastAPI + React + MongoDB</p>
+    <div className="max-w-2xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-gray-900">FARM App</h1>
+      <p className="text-sm text-gray-400 mt-1 mb-10">
+        FastAPI · React · MongoDB · SQLite
+      </p>
 
-      <form onSubmit={handleSubmit} className="form">
-        <input
-          placeholder="Item name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">Add</button>
-      </form>
+      {/* ---- Items (MongoDB) ----------------------------------------------- */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">Items</h2>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 uppercase tracking-wide">
+            MongoDB
+          </span>
+        </div>
 
-      <h2>Items ({items.length})</h2>
-      <ul className="item-list">
-        {/* Loop over items and draw one <li> for each. The "key" helps
-            React track each row efficiently. */}
-        {items.map((item) => (
-          <li key={item._id}>
-            <strong>{item.name}</strong>
-            {item.description && <span> — {item.description}</span>}
-          </li>
-        ))}
-      </ul>
-      {items.length === 0 && <p>No items yet. Add one above!</p>}
+        <form onSubmit={handleItemSubmit} className="flex gap-2 mb-4 flex-wrap">
+          <input
+            className="flex-1 min-w-36 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            placeholder="Item name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className="flex-1 min-w-36 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            placeholder="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 text-sm font-medium bg-green-700 text-white rounded-lg hover:bg-green-800 cursor-pointer"
+          >
+            Add
+          </button>
+        </form>
+
+        <ul className="space-y-2">
+          {items.map((item) => (
+            <li key={item._id} className="px-4 py-3 border border-gray-100 rounded-lg text-sm">
+              <span className="font-medium text-gray-800">{item.name}</span>
+              {item.description && (
+                <span className="text-gray-500"> — {item.description}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+        {items.length === 0 && (
+          <p className="text-sm text-gray-400 mt-2">No items yet. Add one above!</p>
+        )}
+      </section>
+
+      {/* ---- Notes (SQLite) ------------------------------------------------ */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">Notes</h2>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 uppercase tracking-wide">
+            SQLite
+          </span>
+        </div>
+
+        <form onSubmit={handleNoteSubmit} className="flex gap-2 mb-4 flex-wrap">
+          <input
+            className="flex-1 min-w-36 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <input
+            className="flex-1 min-w-36 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Content (optional)"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 text-sm font-medium bg-blue-700 text-white rounded-lg hover:bg-blue-800 cursor-pointer"
+          >
+            Add
+          </button>
+        </form>
+
+        <ul className="space-y-2">
+          {notes.map((note) => (
+            <li key={note.id} className="px-4 py-3 border border-gray-100 rounded-lg text-sm">
+              <span className="font-medium text-gray-800">{note.title}</span>
+              {note.content && (
+                <span className="text-gray-500"> — {note.content}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+        {notes.length === 0 && (
+          <p className="text-sm text-gray-400 mt-2">No notes yet. Add one above!</p>
+        )}
+      </section>
     </div>
   );
 }

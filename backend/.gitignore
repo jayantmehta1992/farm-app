@@ -7,3 +7,6 @@ __pycache__/
 
 # Environment variables (secrets like DB passwords)
 .env
+
+# SQLite database file (generated at runtime)
+data/

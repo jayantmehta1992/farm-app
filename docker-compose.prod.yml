@@ -40,6 +40,8 @@ services:
       - mongo
     ports:
       - "8000:8000"             # expose the API on host port 8000
+    volumes:
+      - farm-sqlite-prod-data:/app/data  # persist the SQLite .db file across restarts
 
   # --- Frontend (React via nginx) ---------------------------------------
   frontend:
@@ -57,3 +59,4 @@ services:
 
 volumes:
   farm-mongo-prod-data:
+  farm-sqlite-prod-data:
