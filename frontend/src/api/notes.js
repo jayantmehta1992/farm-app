@@ -1,26 +1,15 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { request } from './client';
 
-export async function fetchNotes() {
-  const res = await fetch(`${API_URL}/notes`);
-  return res.json();
-}
+const BASE = '/notes';
 
-export async function createNote(note) {
-  await fetch(`${API_URL}/notes`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(note),
-  });
-}
+export const fetchNotes = () =>
+  request(BASE);
 
-export async function updateNote(id, note) {
-  await fetch(`${API_URL}/notes/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(note),
-  });
-}
+export const createNote = (note) =>
+  request(BASE, { method: 'POST', body: JSON.stringify(note) });
 
-export async function deleteNote(id) {
-  await fetch(`${API_URL}/notes/${id}`, { method: 'DELETE' });
-}
+export const updateNote = (id, note) =>
+  request(`${BASE}/${id}`, { method: 'PUT', body: JSON.stringify(note) });
+
+export const deleteNote = (id) =>
+  request(`${BASE}/${id}`, { method: 'DELETE' });
