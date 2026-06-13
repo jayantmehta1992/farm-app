@@ -125,6 +125,8 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
 
       - name: Delete old images (keep last 5)
         uses: actions/delete-package-versions@v5
@@ -134,3 +136,36 @@ jobs:
           min-versions-to-keep: 5
           delete-only-untagged-versions: false
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  # --- Deploy to Fly.io (main only) -------------------------------------
+  # Runs after images are pushed to GHCR. Tells Fly.io to pull the
+  # pre-built :latest image — no rebuild on Fly.io's side.
+  # Requires FLY_API_TOKEN to be set in GitHub repo secrets.
+
+  deploy-backend:
+    name: Deploy backend to Fly.io
+    needs: push-backend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy
+        run: fly deploy --image ghcr.io/${{ github.repository_owner }}/farm-app-backend:latest --app ${{ vars.FLY_APP_BACKEND }}
+        working-directory: ./backend
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-frontend:
+    name: Deploy frontend to Fly.io
+    needs: push-frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy
+        run: fly deploy --image ghcr.io/${{ github.repository_owner }}/farm-app-frontend:latest --app ${{ vars.FLY_APP_FRONTEND }}
+        working-directory: ./frontend
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

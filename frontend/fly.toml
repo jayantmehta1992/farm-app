@@ -7,8 +7,8 @@ app = 'farm-app-frontend'
 primary_region = 'bom'
 
 [build]
-  [build.args]
-    VITE_API_URL = "https://farm-app-backend.fly.dev"
+# VITE_API_URL is passed at build time by CI via the VITE_API_URL GitHub variable.
+# For manual deploys: fly deploy --build-arg VITE_API_URL=https://farm-app-backend.fly.dev
 
 [http_service]
   internal_port = 80
