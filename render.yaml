@@ -7,7 +7,7 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: free
+
     envVars:
       - key: MONGO_URL
         sync: false          # set this manually in the Render dashboard (it's a secret)
@@ -24,7 +24,7 @@ services:
     runtime: static
     buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: ./frontend/dist
-    plan: free
+
     envVars:
       - key: VITE_API_URL
         value: https://farm-app-backend.onrender.com
