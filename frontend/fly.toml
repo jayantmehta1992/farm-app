@@ -4,7 +4,7 @@
 #
 
 app = 'farm-app-frontend'
-primary_region = 'bom'
+primary_region = 'sin'
 
 [build]
 # VITE_API_URL is passed at build time by CI via the VITE_API_URL GitHub variable.
