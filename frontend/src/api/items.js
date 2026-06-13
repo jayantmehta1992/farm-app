@@ -1,26 +1,15 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import { request } from './client';
 
-export async function fetchItems() {
-  const res = await fetch(`${API_URL}/items`);
-  return res.json();
-}
+const BASE = '/items';
 
-export async function createItem(item) {
-  await fetch(`${API_URL}/items`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
-  });
-}
+export const fetchItems = () =>
+  request(BASE);
 
-export async function updateItem(id, item) {
-  await fetch(`${API_URL}/items/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
-  });
-}
+export const createItem = (item) =>
+  request(BASE, { method: 'POST', body: JSON.stringify(item) });
 
-export async function deleteItem(id) {
-  await fetch(`${API_URL}/items/${id}`, { method: 'DELETE' });
-}
+export const updateItem = (id, item) =>
+  request(`${BASE}/${id}`, { method: 'PUT', body: JSON.stringify(item) });
+
+export const deleteItem = (id) =>
+  request(`${BASE}/${id}`, { method: 'DELETE' });

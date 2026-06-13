@@ -1,3 +1,4 @@
+import ErrorBoundary from './components/ErrorBoundary';
 import ItemsSection from './components/ItemsSection';
 import NotesSection from './components/NotesSection';
 
@@ -8,8 +9,12 @@ function App() {
       <p className="text-sm text-gray-400 mt-1 mb-10">
         FastAPI · React · MongoDB · SQLite
       </p>
-      <ItemsSection />
-      <NotesSection />
+      <ErrorBoundary>
+        <ItemsSection />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <NotesSection />
+      </ErrorBoundary>
     </div>
   );
 }
