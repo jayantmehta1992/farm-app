@@ -148,7 +148,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy
         run: fly deploy --image ghcr.io/${{ github.repository_owner }}/farm-app-backend:latest --app ${{ vars.FLY_APP_BACKEND }}
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy
         run: fly deploy --image ghcr.io/${{ github.repository_owner }}/farm-app-frontend:latest --app ${{ vars.FLY_APP_FRONTEND }}
